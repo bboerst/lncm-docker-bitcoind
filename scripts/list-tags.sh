@@ -22,4 +22,4 @@ main() {
     echo
 }
 
-main "lncm/bitcoind"
+main "bboerst/lncm-bitcoind"

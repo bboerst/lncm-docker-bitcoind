@@ -1,4 +1,4 @@
-lncm/bitcoind
+bboerst/lncm-bitcoind
 =============
 
 [![Build Status]][builds]
@@ -12,9 +12,9 @@ lncm/bitcoind
 [gh_last_release_svg]: https://img.shields.io/github/v/release/lncm/docker-bitcoind?sort=semver
 [gh_last_release_url]: https://github.com/lncm/docker-bitcoind/releases/latest
 
-[Docker Image Size]: https://img.shields.io/microbadger/image-size/lncm/bitcoind.svg
-[Docker Pulls Count]: https://img.shields.io/docker/pulls/lncm/bitcoind.svg?style=flat
-[lnd-docker-hub]: https://hub.docker.com/r/lncm/bitcoind
+[Docker Image Size]: https://img.shields.io/microbadger/image-size/bboerst/lncm-bitcoind.svg
+[Docker Pulls Count]: https://img.shields.io/docker/pulls/bboerst/lncm-bitcoind.svg?style=flat
+[lnd-docker-hub]: https://hub.docker.com/r/bboerst/lncm-bitcoind
 
 
 This repo builds [`bitcoind`] in an [auditable way](https://github.com/lncm/docker-bitcoind), and packages it into a minimal Docker containers provided for various CPU architectures.
@@ -27,7 +27,7 @@ This repo builds [`bitcoind`] in an [auditable way](https://github.com/lncm/dock
 
 #### Details
 
-* **All [`git-tags`]** <small>(and most commits)</small> **are signed** by `D8CA1776EB9265491D07CE67F546ECBEA809CB18`
+* **All [`git-tags`]** <small>(and most commits)</small> **are signed** by `923892A50A1A652ABA1495DB94B6B849F62EE3E5`
 * **All [`git-tags`]** <small>(and most commits)</small> **are [`opentimestamps`]-ed**
 * **All builds aim to be maximally auditable.**  After `git tag push`, the entire process is automated, with each step printed, and the code aiming to be easy to follow
 * All builds are based on [Alpine]
@@ -62,7 +62,7 @@ This repo builds [`bitcoind`] in an [auditable way](https://github.com/lncm/dock
 
 ## Tags
 
-> **NOTE:** For an always up-to-date list see: https://hub.docker.com/r/lncm/bitcoind/tags
+> **NOTE:** For an always up-to-date list see: https://hub.docker.com/r/bboerst/lncm-bitcoind/tags
 
 * `v26.0`
 * `v25.1`
@@ -88,17 +88,17 @@ This repo builds [`bitcoind`] in an [auditable way](https://github.com/lncm/dock
 First pull the image from [Docker Hub]:
 
 ```bash
-docker pull lncm/bitcoind:v25.0
+docker pull bboerst/lncm-bitcoind:v25.0
 ```
 
 > **NOTE:** Running above will automatically choose native architecture of your CPU.
 
-[Docker Hub]: https://hub.docker.com/r/lncm/bitcoind
+[Docker Hub]: https://hub.docker.com/r/bboerst/lncm-bitcoind
 
 Or, to pull a specific CPU architecture:
 
 ```bash
-docker pull lncm/bitcoind:v25.0-arm64v8
+docker pull bboerst/lncm-bitcoind:v25.0-arm64v8
 ```
 
 #### Start
@@ -119,7 +119,7 @@ docker run  -it  --rm  --detach \
     -p 28332:28332 \
     -p 28333:28333 \
     --name bitcoind \
-    lncm/bitcoind:v25.0
+    bboerst/lncm-bitcoind:v25.0
 ```
 
 That will run bitcoind such that:
@@ -164,7 +164,7 @@ services:
   bitcoin:
     container_name: bitcoind
     user: 1000:1000
-    image: lncm/bitcoind:v25.0
+    image: bboerst/lncm-bitcoind:v25.0
     volumes:
       - ./bitcoin:/data/.bitcoin
     restart: on-failure

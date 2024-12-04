@@ -25,8 +25,6 @@ jobs:
       matrix:
         arch:
           - amd64
-          - arm32v7
-          - arm64v8
 
     env:
       QEMU_VERSION: v5.0.0
@@ -113,19 +111,20 @@ jobs:
       - name: Save built image into a .tgz file
         run: |
           mkdir -p images/
-
-          docker tag  "$APP"  "$APP:${{ matrix.arch }}"
+          docker tag "$APP" "$APP:${{ matrix.arch }}"
           docker save "$APP:${{ matrix.arch }}" | gzip > "images/docker-$APP-$TAG-${{ matrix.arch }}.tgz"
+
+      - name: Debug saved images
+        run: ls -l images/
 
       - name: Print sha256sum of built image
         run: sha256sum images/*
 
       - name: Upload docker image as build artifact
-        uses: actions/upload-artifact@v1.0.0
+        uses: actions/upload-artifact@v4
         with:
           name: docker-images
           path: images/
-
 
   deploy:
     name: Deploy to Docker Hub & Github Releases.  Only after successful build.
@@ -143,16 +142,24 @@ jobs:
           echo ::set-env name=VERSION::"$(echo "$GITHUB_REF" | sed -E "s|$TAG_FMT|\2|")"
           echo ::set-env name=BUILD::"$(echo "$GITHUB_REF" | sed -E "s|$TAG_FMT|\4|")"
 
+      - name: List available artifacts
+        run: gh api repos/${{ github.repository }}/actions/artifacts | jq '.artifacts[] | .name'
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Download all build artifacts
         uses: actions/download-artifact@v4.1.7
         with:
           name: docker-images
 
+      - name: Debug downloaded images
+        run: ls -l ./
+
       - name: Print sha256sum of downloaded images
-        run: sha256sum docker-images/*
+        run: sha256sum ./*
 
       - name: Load images locally
-        run: find docker-images  -exec docker load -i "{}" \;
+        run: find ./ -exec docker load -i "{}" \;
 
       # No short tags.
       - name: Version-tag all images
@@ -167,10 +174,10 @@ jobs:
 
       - name: Login to Docker Hub
         env:
-          DOCKER_USER: meedamian
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
         run: |
           echo "Logging in as ${DOCKER_USER}…"
-          echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u="$DOCKER_USER" --password-stdin
+          echo "${{ secrets.DOCKER_PASS }}" | docker login -u="$DOCKER_USER" --password-stdin
 
       - name: Push all images
         run: docker images "$SLUG" --format "{{.Repository}}:{{.Tag}}" | xargs -I %  docker push %
@@ -178,14 +185,7 @@ jobs:
       - name: Create manifest
         run: >
           docker -D manifest create  "$SLUG:$VERSION" \
-            "$SLUG:$VERSION-amd64" \
-            "$SLUG:$VERSION-arm32v7" \
-            "$SLUG:$VERSION-arm64v8"
-
-      - name: Annotate images for manifest
-        run: |
-          docker manifest annotate "$SLUG:$VERSION" "$SLUG:$VERSION-arm32v7" --os linux --arch arm   --variant v7
-          docker manifest annotate "$SLUG:$VERSION" "$SLUG:$VERSION-arm64v8" --os linux --arch arm64 --variant v8
+            "$SLUG:$VERSION-amd64"
 
       - name: Print manifest details
         run: docker manifest inspect "$SLUG:$VERSION" | jq '.'
@@ -208,5 +208,5 @@ jobs:
           prerelease: true
           gzip: false
           files: >
-            docker-images/*
+            ./*
             SHA256SUMS
